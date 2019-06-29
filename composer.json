@@ -1,0 +1,16 @@
+{
+  "name": "daibe/zoneminder-client",
+  "type": "library",
+  "description": "Zoneminder API client for PHP",
+  "keywords": ["api","api client","php","zoneminder"],
+  "homepage": "https://github.com/daibe",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Abed Tshilombo",
+      "email": "daibe@tutanota.com",
+      "homepage": "http://abedtshilo.com",
+      "role": "Developer"
+    }
+  ]
+}
