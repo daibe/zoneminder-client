@@ -1,5 +1,7 @@
 
 
+/vendor
+composer.lock
 /.idea
 /public
-/zoneminder_api_client.iml
+zoneminder_api_client.iml
