@@ -65,5 +65,41 @@ class System
         return $this->output($response);
     }
 
+    /**
+     * returns list of run states
+     */
+    public function getStates()
+    {
+        $response = $this->client->get("/api/states.json");
+        return $this->output($response);
+    }
+
+    /**
+     * Restarts ZM
+     */
+    public function restart()
+    {
+        $response = $this->client->post("/api/states/change/restart.json");
+        return $this->output($response);
+    }
+
+    /**
+     * Stops ZM
+     */
+    public function stop()
+    {
+        $response = $this->client->post("/api/states/change/stop.json");
+        return $this->output($response);
+    }
+
+    /**
+     * Starts ZM
+     */
+    public function start()
+    {
+        $response = $this->client->post("/api/states/change/start.json");
+        return $this->output($response);
+    }
+
 
 }
