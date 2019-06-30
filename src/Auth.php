@@ -22,7 +22,7 @@ class Auth
     {
         $output = null;
 
-        $response = $client->request('POST', '/api/login.json', [
+        $response = $this->client->request('POST', '/api/login.json', [
             'form_params' => [
                 'user' => $username,
                 'pass' => $password

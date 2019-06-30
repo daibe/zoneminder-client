@@ -16,6 +16,9 @@ class ZoneClient
 {
     const DEFAULT_BASE_URI = 'https://127.0.0.1/zm';
 
+    /**
+     * @var Client
+     */
     private $client;
 
 
@@ -32,19 +35,74 @@ class ZoneClient
 
     }
 
+    /**
+     * Clear cookies
+     */
     public function clearCookies()
     {
         $cookie_jar = $this->client->getConfig('cookies');
         $cookie_jar->clear();
     }
 
-    public function get() { }
+    /**
+     * @param $url
+     * @return mixed|\Psr\Http\Message\ResponseInterface|null
+     */
+    public function get($url)
+    {
+        try {
+            $output = $this->client->request('GET', $url);
+        } catch (GuzzleException $e) {
+            $output = null;
+        }
+        return $output;
+    }
 
-    public function post() {}
+    /**
+     * @param $url
+     * @param array $params
+     * @return mixed|\Psr\Http\Message\ResponseInterface|null
+     */
+    public function post($url, $params = [])
+    {
+        try {
+            $output = $this->client->request('POST', $url, $params);
+        } catch (GuzzleException $e) {
+            $output = null;
+        }
+        return $output;
+    }
 
-    public function put() {}
+    /**
+     * @param $url
+     * @param array $params
+     * @return mixed|\Psr\Http\Message\ResponseInterface|null
+     */
+    public function put($url, $params = [])
+    {
+        try {
+            $output = $this->client->request('PUT', $url, $params);
+        } catch (GuzzleException $e) {
+            $output = null;
+        }
+        return $output;
+    }
 
-    public function delete() {}
+    /**
+     *
+     * @param $url
+     * @param array $params
+     * @return mixed|\Psr\Http\Message\ResponseInterface|null
+     */
+    public function delete($url, $params = [])
+    {
+        try {
+            $output = $this->client->request('DELETE', $url, $params);
+        } catch (GuzzleException $e) {
+            $output = null;
+        }
+        return $output;
+    }
 
 
 
