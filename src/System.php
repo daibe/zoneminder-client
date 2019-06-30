@@ -101,5 +101,14 @@ class System
         return $this->output($response);
     }
 
+    /**
+     * Returns ZM configurations
+     */
+    public function getConfigs()
+    {
+        $response = $this->client->post("/api/configs.json");
+        return $this->output($response);
+    }
+
 
 }
