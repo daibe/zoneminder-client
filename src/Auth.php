@@ -32,8 +32,8 @@ class Auth
         $data = json_decode($response->getBody(), true);
 
         // login failed
-        if ($data->error) {
-            $output = $this->output($data->error, $data->message);
+        if (!$data->success || !$data->credentials) {
+            $output = $this->output($data->success, $data->data->message);
         }
         // login success
         else {
