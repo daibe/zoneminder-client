@@ -1,9 +1,7 @@
 <?php
 /**
- * Created by IntelliJ IDEA.
- * User: Suyo solutions
- * Date: 2019/06/29
- * Time: 21:33
+ *  TODO: Add description
+ * @author Abed Tshilombo
  */
 
 namespace Daibe\ZoneClient;

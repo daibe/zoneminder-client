@@ -1,9 +1,7 @@
 <?php
 /**
- * Created by IntelliJ IDEA.
- * User: Suyo solutions
- * Date: 2019/06/29
- * Time: 19:26
+ *  TODO: Add description
+ * @author Abed Tshilombo
  */
 
 namespace Daibe\ZoneClient;
@@ -11,6 +9,7 @@ namespace Daibe\ZoneClient;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+
 
 class ZoneClient
 {
@@ -24,12 +23,12 @@ class ZoneClient
 
     public function __construct($base_uri = null)
     {
+
         $options = [
             'cookies' => true, // This is needed to authenticate with zoneminder
             'timeout' => 3.5,
             'base_uri'=> ($base_uri) ? $base_uri : self::DEFAULT_BASE_URI
         ];
-
 
         $this->client = new Client($options);
 

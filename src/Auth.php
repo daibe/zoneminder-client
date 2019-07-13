@@ -18,88 +18,100 @@ class Auth
         $this->client = $client;
     }
 
+    /**
+     *
+     *
+     * @param $username
+     * @param $password
+     * @return \stdClass|null
+     */
     public function login($username, $password)
     {
         $output = null;
 
-        $response = $this->client->request('POST', '/api/login.json', [
+        $response = $this->client->post('api/host/login.json', [
             'form_params' => [
                 'user' => $username,
                 'pass' => $password
             ]
         ]);
 
-        $data = json_decode($response->getBody(), true);
-
-        // login failed
-        if (!$data->success || !$data->credentials) {
-            $output = $this->output($data->success, $data->data->message);
+        // Handle null response
+        if (!$response) {
+            $output = $this->output(true, "An unexpected error occurred. #A01");
         }
-        // login success
         else {
+            $data = json_decode($response->getBody());
 
-            $this->setAuthCredentials($data->credentials);
-            $output = $this->output(false, "You've been logged in");
-
+            // login failed
+            if (isset($data->success) && !$data->success) {
+                $output = $this->output($data->success, $data->data->message);
+            }
+            // login success
+            elseif (isset($data->credentials) && $data->credentials != null) {
+                $this->setAuthCredentials($data->credentials);
+                $output = $this->output(false, "You've been logged in");
+            }
+            //
+            else {
+                $output = $this->output(true, "An unexpected error occurred. #A02");
+            }
         }
 
         return $output;
-
-        /*
-
-        $zone_client = new ZoneClient();
-        $auth = new Auth($zone_client);
-
-        $login = $auth->login($username, $password);
-        if ($login->error) {
-
-        }
-        else {
-
-        }
-        $login->authCredentials;
-        $login->message;
-        $auth->getAuthCredentials();
-
-        $auth->logout();
-
-        $auth->isLoggedIn();
-
-        */
-
-
     }
 
+    /**
+     * @return \stdClass
+     */
     public function logout()
     {
+        $output = $this->output(true, "Your request failed. #A03");
+
         if ($this->isLoggedIn()) {
+
+            $response = $this->client->post('api/host/logout.json', []);
+
+            if ($response) {
+                $data = json_decode($response->getBody());
+
+                // login failed
+                if (isset($data->result) && !$data->result == "ok") {
+                    $output = $this->output(true, "You've been logged out");
+                }
+            }
+
             $this->clearAuthCredentials();
         }
+
+        return $output;
     }
 
     private function setAuthCredentials($auth_val)
     {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $_SESSION[self::AUTH_SESSION_KEY] = $auth_val;
     }
 
-    private function clearAuthCredentials()
+    public function clearAuthCredentials()
     {
         $this->client->clearCookies();
-        unset($_SESSION[self::AUTH_SESSION_KEY]);
+        if (isset($_SESSION[self::AUTH_SESSION_KEY])) {
+            unset($_SESSION[self::AUTH_SESSION_KEY]);
+        }
     }
 
     public function isLoggedIn()
     {
-        return (bool) filter_input(INPUT_SESSION, self::AUTH_SESSION_KEY);
+
+        $system = new System($this->client);
+        return $system->getHostLoad()->error;
+
     }
 
     public function getAuthCredentials()
     {
-        return filter_input(INPUT_SESSION, self::AUTH_SESSION_KEY);
+        $key = (isset($_SESSION[self::AUTH_SESSION_KEY])) ? $_SESSION[self::AUTH_SESSION_KEY] : null;
+        return filter_var($key);
     }
 
     private function output($error, $message, $data = null)

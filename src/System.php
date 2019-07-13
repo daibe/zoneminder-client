@@ -1,9 +1,7 @@
 <?php
 /**
- * Created by IntelliJ IDEA.
- * User: Suyo solutions
- * Date: 2019/06/29
- * Time: 21:33
+ *  TODO: Add description
+ * @author Abed Tshilombo
  */
 
 namespace Daibe\ZoneClient;
@@ -22,47 +20,119 @@ class System
     }
 
 
-    private function output(Response $response)
+    /**
+     * @param $error
+     * @param $message
+     * @param null $data
+     * @return \stdClass
+     */
+    private function output($error, $message, $data = null)
     {
-        return json_decode($response->getBody(), true);
+        $output = new \stdClass();
+
+        $output->error = $error;
+        $output->message = $message;
+
+        if ($data) {
+            $output->data = $data;
+        }
+
+        return $output;
     }
 
 
     /**
      * Get ZoneMinder load
+     * @return \stdClass
      */
     public function getHostLoad()
     {
-        $response = $this->client->get("/api/host/getLoad.json");
-        return $this->output($response);
+        $response = $this->client->get("api/host/getLoad.json");
+
+        if (!$response) {
+            $output = $this->output(true, "An unexpected error occurred. #S01");
+        }
+        else {
+            $data = json_decode($response->getBody());
+
+            if (!isset($data->load)) {
+                $output = $this->output(true, "An unexpected error occurred. #S02");
+            }
+            else {
+                $output = $this->output(false, null, $data->load);
+            }
+        }
+
+        return $output;
     }
 
     /**
-     * retrieve monitor
-     * @return mixed
+     * Retrieve monitor
+     * @return int
      */
     public function daemonCheck()
     {
-        $response = $this->client->get("/api/host/daemonCheck.json");
-        return $this->output($response);
+        $response = $this->client->get("api/host/daemonCheck.json");
+
+        if (!$response) {
+            $output = 0;
+        }
+        else {
+            $data = json_decode($response->getBody());
+            $output = (isset($data->result)) ? $data->result : 0;
+        }
+
+        return $output;
     }
 
     /**
      * Storage info
+     * @return \stdClass
      */
     public function getStorage()
     {
-        $response = $this->client->get("/api/storage.json");
-        return $this->output($response);
+        $response = $this->client->get("api/storage.json");
+
+        if (!$response) {
+            $output = $this->output(true, "An unexpected error occurred. #S05");
+        }
+        else {
+            $data = json_decode($response->getBody());
+
+            if (!isset($data->storage)) {
+                $output = $this->output(true, "An unexpected error occurred. #S06");
+            }
+            else {
+                $output = $this->output(false, null, $data->storage);
+            }
+        }
+
+        return $output;
     }
 
     /**
      * Servers
+     * @return \stdClass
      */
     public function getServers()
     {
-        $response = $this->client->post("/api/servers.json");
-        return $this->output($response);
+        $response = $this->client->post("api/servers.json");
+
+        if (!$response) {
+            $output = $this->output(true, "An unexpected error occurred. #S07");
+        }
+        else {
+            $data = json_decode($response->getBody());
+
+            if (!isset($data->servers)) {
+                $output = $this->output(true, "An unexpected error occurred. #S08");
+            }
+            else {
+                $output = $this->output(false, null, $data->servers);
+            }
+        }
+
+        return $output;
     }
 
     /**
@@ -70,8 +140,23 @@ class System
      */
     public function getStates()
     {
-        $response = $this->client->get("/api/states.json");
-        return $this->output($response);
+        $response = $this->client->get("api/states.json");
+
+        if (!$response) {
+            $output = $this->output(true, "An unexpected error occurred. #S09");
+        }
+        else {
+            $data = json_decode($response->getBody());
+
+            if (!isset($data->states)) {
+                $output = $this->output(true, "An unexpected error occurred. #S10");
+            }
+            else {
+                $output = $this->output(false, null, $data->states);
+            }
+        }
+
+        return $output;
     }
 
     /**
@@ -79,8 +164,7 @@ class System
      */
     public function restart()
     {
-        $response = $this->client->post("/api/states/change/restart.json");
-        return $this->output($response);
+        $this->client->post("api/states/change/restart.json");
     }
 
     /**
@@ -88,8 +172,7 @@ class System
      */
     public function stop()
     {
-        $response = $this->client->post("/api/states/change/stop.json");
-        return $this->output($response);
+        $this->client->post("api/states/change/stop.json");
     }
 
     /**
@@ -97,8 +180,7 @@ class System
      */
     public function start()
     {
-        $response = $this->client->post("/api/states/change/start.json");
-        return $this->output($response);
+        $this->client->post("api/states/change/start.json");
     }
 
     /**
@@ -106,8 +188,23 @@ class System
      */
     public function getConfigs()
     {
-        $response = $this->client->post("/api/configs.json");
-        return $this->output($response);
+        $response = $this->client->post("api/configs.json");
+
+        if (!$response) {
+            $output = $this->output(true, "An unexpected error occurred. #S11");
+        }
+        else {
+            $data = json_decode($response->getBody());
+
+            if (!isset($data->configs)) {
+                $output = $this->output(true, "An unexpected error occurred. #S12");
+            }
+            else {
+                $output = $this->output(false, null, $data->configs);
+            }
+        }
+
+        return $output;
     }
 
 

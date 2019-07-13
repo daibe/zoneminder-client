@@ -1,9 +1,7 @@
 <?php
 /**
- * Created by IntelliJ IDEA.
- * User: Suyo solutions
- * Date: 2019/06/29
- * Time: 21:33
+ *  TODO: Add description
+ * @author Abed Tshilombo
  */
 
 namespace Daibe\ZoneClient;
@@ -32,25 +30,48 @@ class Monitors
     }
 
 
-    private function output(Response $response)
+    /**
+     * @param $error
+     * @param $message
+     * @param null $data
+     * @return \stdClass
+     */
+    private function output($error, $message, $data = null)
     {
-        return json_decode($response->getBody(), true);
+        $output = new \stdClass();
+
+        $output->error = $error;
+        $output->message = $message;
+
+        if ($data) {
+            $output->data = $data;
+        }
+
+        return $output;
     }
 
 
-    private function isValidFunction($function)
+    private function isFunctionValid($function)
     {
         return (bool) (in_array(strtolower($function), self::FUNCTIONS));
     }
 
 
     /**
-     * list all monistors
+     * list all monitors
      */
-    public function getAll()
+    public function getMonitors()
     {
-        $response = $this->client->get("/api/monitors.json");
-        return $this->output($response);
+        $response = $this->client->get("api/monitors.json");
+
+        $monitors = [];
+
+        if ($response) {
+            $data = json_decode($response->getBody());
+            $monitors = (isset($data->monitors)) ? $data->monitors : [];
+        }
+
+        return $this->output(!((bool) $monitors), null, $monitors);
     }
 
     /**
@@ -58,10 +79,18 @@ class Monitors
      * @param $monitor_id
      * @return mixed
      */
-    public function get($monitor_id)
+    public function getMonitor($monitor_id)
     {
-        $response = $this->client->get("/api/monitors/{$monitor_id}.json");
-        return $this->output($response);
+        $response = $this->client->get("api/monitors/{$monitor_id}.json");
+
+        $monitor = [];
+
+        if ($response) {
+            $data = json_decode($response->getBody());
+            $monitor = (isset($data->monitor)) ? $data->monitor : [];
+        }
+
+        return $this->output(!((bool) $monitor), null, $monitor);
     }
 
     /**
@@ -72,16 +101,24 @@ class Monitors
      */
     public function changeFunction($monitor_id, $function)
     {
-        if (!$this->isValidFunction($function)) {
+        if (!$this->isFunctionValid($function)) {
             return null;
         }
 
-        $response = $this->client->post("/api/monitors/{$monitor_id}.json", [
+        $response = $this->client->post("api/monitors/{$monitor_id}.json", [
             'form_params' => [
                 'Monitor["Function"]' => ucfirst($function)
             ]
         ]);
-        return $this->output($response);
+
+        $is_saved = false;
+
+        if ($response) {
+            $data = json_decode($response->getBody());
+            $is_saved = (isset($data->message) && $data->message == "Saved") ? true : false;
+        }
+
+        return $this->output(!$is_saved, null);
     }
 
     /**
@@ -91,12 +128,20 @@ class Monitors
      */
     public function enable($monitor_id)
     {
-        $response = $this->client->post("/api/monitors/{$monitor_id}.json", [
+        $response = $this->client->post("api/monitors/{$monitor_id}.json", [
             'form_params' => [
                 'Monitor["Enabled"]' => 1
             ]
         ]);
-        return $this->output($response);
+
+        $is_saved = false;
+
+        if ($response) {
+            $data = json_decode($response->getBody());
+            $is_saved = (isset($data->message) && $data->message == "Saved") ? true : false;
+        }
+
+        return $this->output(!$is_saved, null);
     }
 
     /**
@@ -106,12 +151,20 @@ class Monitors
      */
     public function disable($monitor_id)
     {
-        $response = $this->client->post("/api/monitors/{$monitor_id}.json", [
+        $response = $this->client->post("api/monitors/{$monitor_id}.json", [
             'form_params' => [
                 'Monitor["Enabled"]' => 0
             ]
         ]);
-        return $this->output($response);
+
+        $is_saved = false;
+
+        if ($response) {
+            $data = json_decode($response->getBody());
+            $is_saved = (isset($data->message) && $data->message == "Saved") ? true : false;
+        }
+
+        return $this->output(!$is_saved, null);
     }
 
     /**
@@ -123,17 +176,25 @@ class Monitors
      */
     public function changeState($monitor_id, $function, $enabled)
     {
-        if (!$this->isValidFunction($function)) {
+        if (!$this->isFunctionValid($function)) {
             return null;
         }
 
-        $response = $this->client->post("/api/monitors/{$monitor_id}.json", [
+        $response = $this->client->post("api/monitors/{$monitor_id}.json", [
             'form_params' => [
                 'Monitor["Enabled"]' => $enabled,
                 'Monitor["Function"]' => ucfirst($function)
             ]
         ]);
-        return $this->output($response);
+
+        $is_saved = false;
+
+        if ($response) {
+            $data = json_decode($response->getBody());
+            $is_saved = (isset($data->message) && $data->message == "Saved") ? true : false;
+        }
+
+        return $this->output(!$is_saved, null);
     }
 
     /**
@@ -143,8 +204,16 @@ class Monitors
      */
     public function daemon($monitor_id)
     {
-        $response = $this->client->get("/api/monitors/daemonStatus/id:{$monitor_id}/daemon:zmc.json");
-        return $this->output($response);
+        $response = $this->client->get("api/monitors/daemonStatus/id:{$monitor_id}/daemon:zmc.json");
+
+        $daemon = [];
+
+        if ($response) {
+            $data = json_decode($response->getBody());
+            $daemon = (isset($data->status)) ? $data : false;
+        }
+
+        return $this->output(!((bool) $daemon), null, $daemon);
     }
 
     /**
@@ -174,11 +243,11 @@ class Monitors
         $height = 480,
         $colors = 4
     ) {
-        if (!$this->isValidFunction($function)) {
+        if (!$this->isFunctionValid($function)) {
             return null;
         }
 
-        $response = $this->client->post("/api/monitors.json", [
+        $response = $this->client->post("api/monitors.json", [
             'form_params' => [
                 'Monitor["Name"]' => $name,
                 'Monitor["Function"]' => ucfirst($function),
@@ -192,7 +261,7 @@ class Monitors
                 'Monitor["Colours"]' => $colors,
             ]
         ]);
-        return $this->output($response);
+        // return $this->output($response);
     }
 
     /**
@@ -212,8 +281,8 @@ class Monitors
      */
     public function delete($monitor_id)
     {
-        $response = $this->client->delete("/api/monitors/{$monitor_id}.json");
-        return $this->output($response);
+        $response = $this->client->delete("api/monitors/{$monitor_id}.json");
+        // return $this->output($response);
     }
 
     /**
@@ -223,19 +292,18 @@ class Monitors
      */
     public function arm($monitor_id)
     {
-        $response = $this->client->get("/api/monitors/alarm/id:{$monitor_id}/command:on.json");
-        return $this->output($response);
+        $response = $this->client->get("api/monitors/alarm/id:{$monitor_id}/command:on.json");
+        // return $this->output($response);
     }
 
     /**
      * disarm monitors
      * @param $monitor_id
-     * @return mixed
      */
     public function disarm($monitor_id)
     {
-        $response = $this->client->get("/api/monitors/alarm/id:{$monitor_id}/command:off.json");
-        return $this->output($response);
+        $response = $this->client->get("api/monitors/alarm/id:{$monitor_id}/command:off.json");
+        // return $this->output($response);
     }
 
     /**
@@ -245,8 +313,8 @@ class Monitors
      */
     public function getAlarmStatus($monitor_id)
     {
-        $response = $this->client->get("/api/monitors/alarm/id:{$monitor_id}/command:status.json");
-        return $this->output($response);
+        $response = $this->client->get("api/monitors/alarm/id:{$monitor_id}/command:status.json");
+        // return $this->output($response);
     }
 
 
